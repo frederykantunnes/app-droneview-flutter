@@ -14,6 +14,8 @@ class _HomeViewState extends State<HomeView> {
       appBar: AppBar(
         title: Text("Drone View"),
         centerTitle: true,
+        backgroundColor: Colors.teal,
+
       ),
       body: Container(
         child: Column(
@@ -36,7 +38,7 @@ class _HomeViewState extends State<HomeView> {
           onTap: (){
             switch(index){
               case 0:
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>Mapa()));
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>MapPage()));
                 break;
               case 1:
                 break;

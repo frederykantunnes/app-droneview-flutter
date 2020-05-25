@@ -1,59 +1,83 @@
+import 'package:drone/View/PopUp.dart';
 import 'package:flutter/material.dart';
-import 'package:latlng/latlng.dart';
-import 'package:map/map.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong/latlong.dart';
+import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
 
 
 
+class MapPage extends StatefulWidget {
+//  final GlobalKey<_MapPageState> _mapPageStateKey = GlobalKey<_MapPageState>();
+//  _mapPageStateKey
+//  MapPage(GlobalKey<_MapPageState> key) : super(key: key);
 
-class Mapa extends StatefulWidget {
+
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _MapPageState createState() => _MapPageState();
 }
 
-class _MyHomePageState extends State<Mapa> {
-  final controller = MapController(
-    location: LatLng(-8.094833, -34.972750),
-    zoom: 13,
+class _MapPageState extends State<MapPage> {
+  static final List<LatLng> _points = [
+    LatLng(-8.094833, -34.972750),
+    LatLng(-8.069075, -34.922585),
+    LatLng(-8.063413, -34.898923),
+  ];
 
-  );
+  static const _markerSize = 70.0;
+  List<Marker> _markers;
 
-//  void _incrementCounter() {
-//    controller.location = LatLng(-8.094833, -34.972750);
-//  }
+  // Used to trigger showing/hiding of popups.
+  final PopupController _popupLayerController = PopupController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _markers = _points
+        .map(
+          (LatLng point) => Marker(
+        point: point,
+        width: _markerSize,
+        height: _markerSize,
+        builder: (_) => Image.network("https://img.icons8.com/plasticine/2x/drone-with-camera.png" , height: _markerSize, width: _markerSize,),
+//        builder: (_) => Icon(Icons.airplanemode_active, size: _markerSize),
+        anchorPos: AnchorPos.align(AnchorAlign.top),
+      ),
+    )
+        .toList();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
-    controller.tileSize = 256 / devicePixelRatio;
-
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text('Mapa de Vôos'),
+        title: Text("Drone View - Vôos"),
+        backgroundColor: Colors.teal,
       ),
-      body: Map(
-        controller: controller,
-        provider: const CachedGoogleMapProvider(),
+        body: FlutterMap(
+      options: new MapOptions(
+        zoom: 12.0,
+        center: _points.first,
+        plugins: [PopupMarkerPlugin()],
+        onTap: (_) => _popupLayerController
+            .hidePopup(), // Hide popup when the map is tapped.
       ),
-//      floatingActionButton: FloatingActionButton(
-//        onPressed: _incrementCounter,
-//        tooltip: 'My Location',
-//        child: Icon(Icons.my_location),
-//      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
-  }
-}
-
-/// You can enable caching by using [CachedNetworkImageProvider] from cached_network_image package.
-class CachedGoogleMapProvider extends MapProvider {
-  const CachedGoogleMapProvider();
-
-  @override
-  ImageProvider getTile(int x, int y, int z) {
-    //Can also use CachedNetworkImageProvider.
-    return NetworkImage(
-        'https://www.google.com/maps/vt/pb=!1m4!1m3!1i$z!2i$x!3i$y!2m3!1e0!2sm!3i420120488!3m7!2sen!5e1105!12m4!1e68!2m2!1sset!2sRoadmap!4e0!5m1!1e0!23i4111425');
+      layers: [
+        TileLayerOptions(
+          urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+          subdomains: ['a', 'b', 'c'],
+        ),
+        PopupMarkerLayerOptions(
+          markers: _markers,
+          popupSnap: PopupSnap.top,
+          popupController: _popupLayerController,
+          popupBuilder: (BuildContext _, Marker marker) => ExamplePopup(marker),
+        ),
+      ],
+    ));
   }
 
+  void showPopupForFirstMarker() {
+    _popupLayerController.togglePopup(_markers.first);
+  }
 }

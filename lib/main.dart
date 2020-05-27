@@ -1,13 +1,8 @@
-import 'package:drone/View/Home.dart';
-import 'package:drone/View/Mapa.dart';
+import 'package:drone/View/Splash.dart';
 import 'package:flutter/material.dart';
 
 void main()=>runApp(new MaterialApp(
   title: "Drone View",
-  home: HomeView(),
+  home: Splash(),
   debugShowCheckedModeBanner: false,
 ));
-
-
-//void main() => runApp(MyApp());
-

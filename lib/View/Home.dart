@@ -1,6 +1,9 @@
+import 'package:drone/Controller/API.dart';
+import 'package:drone/Model/FlightModel.dart';
+import 'package:drone/Model/LiveModel.dart';
+import 'package:drone/View/FlightAoVivo.dart';
 import 'package:drone/View/Mapa.dart';
 import 'package:flutter/material.dart';
-
 
 class HomeView extends StatefulWidget {
   @override
@@ -8,20 +11,35 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  var voos = false;
+  var aovivo = false;
   @override
   Widget build(BuildContext context) {
+    fetchData().then((value){
+      if(value == true){
+        if (FlightModel.listFlight.length>0){
+          setState(() {
+            voos=true;
+          });
+        }
+        if (LiveModel.listLives.length>0){
+          setState(() {
+            aovivo=true;
+          });
+        }
+      }
+    });
     return Scaffold(
       appBar: AppBar(
         title: Text("Drone View"),
         centerTitle: true,
-        backgroundColor: Colors.teal,
-
       ),
       body: Container(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            createTile(0,_selectedIndex,false, 'Mapa de Vôos', Colors.teal, Icons.map),
-            createTile(1,_selectedIndex,true, 'Vôo Ao Vivo', Colors.teal, Icons.play_arrow),
+            flightExists()?createTile(0,_selectedIndex,false, 'Mapa de Vôos', Colors.blue, Icons.map):Padding( padding: EdgeInsets.all(20), child: Text("Nenhum Vôo Gravado", style: TextStyle(fontSize: 20,),),),
+            liveExists()?createTile(1,_selectedIndex,true, 'Vôo Ao Vivo', Colors.blue, Icons.play_arrow):Padding( padding: EdgeInsets.all(20), child: Text("Nenhum Vôo Aovivo", style: TextStyle(fontSize: 20,),),),
           ],
         ),
       ),
@@ -41,6 +59,7 @@ class _HomeViewState extends State<HomeView> {
                 Navigator.push(context, MaterialPageRoute(builder: (context)=>MapPage()));
                 break;
               case 1:
+                liveExists()?Navigator.push(context, MaterialPageRoute(builder: (context)=>FlightAoVivo(LiveModel.listLives[0], LiveModel.listLives[0].streamingId))):null;
                 break;
             }
           },
@@ -86,6 +105,22 @@ class _HomeViewState extends State<HomeView> {
       ),
     );
   }
-
-
+  bool flightExists(){
+    if(FlightModel.listFlight != null){
+      if(FlightModel.listFlight.length>0){
+        return true;
+      }
+      return false;
+    }
+    return false;
+  }
+  bool liveExists(){
+    if(LiveModel.listLives != null){
+      if(LiveModel.listLives.length>0){
+        return true;
+      }
+      return false;
+    }
+    return false;
+  }
 }

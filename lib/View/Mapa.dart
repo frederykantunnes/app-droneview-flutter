@@ -1,3 +1,4 @@
+import 'package:drone/Model/FlightModel.dart';
 import 'package:drone/View/PopUp.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -17,13 +18,8 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-  static final List<LatLng> _points = [
-    LatLng(-8.094833, -34.972750),
-    LatLng(-8.069075, -34.922585),
-    LatLng(-8.063413, -34.898923),
-  ];
-
-  static const _markerSize = 70.0;
+  final List<LatLng> _points = FlightModel.getListLat();
+  static const _markerSize = 50.0;
   List<Marker> _markers;
 
   // Used to trigger showing/hiding of popups.
@@ -39,6 +35,7 @@ class _MapPageState extends State<MapPage> {
         point: point,
         width: _markerSize,
         height: _markerSize,
+//        builder: (_) => Image.network("http://healthdrones.tech/img/iconHealthdrones.png" , height: _markerSize, width: _markerSize,),
         builder: (_) => Image.network("https://img.icons8.com/plasticine/2x/drone-with-camera.png" , height: _markerSize, width: _markerSize,),
 //        builder: (_) => Icon(Icons.airplanemode_active, size: _markerSize),
         anchorPos: AnchorPos.align(AnchorAlign.top),
@@ -52,7 +49,6 @@ class _MapPageState extends State<MapPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Drone View - Vôos"),
-        backgroundColor: Colors.teal,
       ),
         body: FlutterMap(
       options: new MapOptions(
@@ -71,7 +67,7 @@ class _MapPageState extends State<MapPage> {
           markers: _markers,
           popupSnap: PopupSnap.top,
           popupController: _popupLayerController,
-          popupBuilder: (BuildContext _, Marker marker) => ExamplePopup(marker),
+          popupBuilder: (BuildContext _, Marker marker)=>ExamplePopup(marker),
         ),
       ],
     ));
